@@ -1,0 +1,18 @@
+version: "3"
+services:
+  backend-node:
+    container_name: "backend-node"
+    build:
+      context: .
+      target: builder
+    ports:
+      - "3008:3008"
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: ./app/src
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: package.json
