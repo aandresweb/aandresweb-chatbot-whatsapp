@@ -3,7 +3,7 @@ services:
   backend-node:
     container_name: "backend-node"
     build:
-      context: .
+      context: Dockerfile.dev
       target: builder
     ports:
       - "3008:3008"

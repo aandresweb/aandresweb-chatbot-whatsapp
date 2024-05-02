@@ -1,21 +1,26 @@
-# Image size ~ 400MB
+# THIS IS THE BASE IMAGE FOR THE BOT
 FROM node:21-alpine3.18 as builder
 
-WORKDIR /app
-
+# Enable Corepack and prepare for PNPM installation to increase performance
 RUN corepack enable && corepack prepare pnpm@latest --activate
 ENV PNPM_HOME=/usr/local/bin
 
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and pnpm-lock.yaml files to the working directory
+COPY package*.json pnpm-lock.yaml ./
+
+# Install dependencies using PNPM
 COPY . .
+RUN pnpm i
 
-COPY package*.json *-lock.yaml ./
+# Create a new stage for deployment
+FROM builder as deploy
 
-RUN apk add --no-cache --virtual .gyp \
-        python3 \
-        make \
-        g++ \
-    && apk add --no-cache git \
-    && pnpm install && pnpm run build \
-    && apk del .gyp
+# Copy only necessary files and directories for deployment
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
 
-CMD ["npm", "run", "dev"]
+RUN pnpm install
+CMD ["pnpm", "start"]
