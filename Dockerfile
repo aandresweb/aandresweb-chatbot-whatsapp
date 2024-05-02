@@ -9,18 +9,18 @@ ENV PNPM_HOME=/usr/local/bin
 WORKDIR /app
 
 # Copy package.json and pnpm-lock.yaml files to the working directory
-COPY package*.json pnpm-lock.yaml ./
+COPY package*.json ./
 
 # Install dependencies using PNPM
 COPY . .
-RUN pnpm i
+RUN npm i
 
 # Create a new stage for deployment
 FROM builder as deploy
 
 # Copy only necessary files and directories for deployment
 COPY --from=builder /app/src ./src
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
+COPY --from=builder /app/package.json  ./
 
-RUN pnpm install
+RUN npm install
 CMD ["pnpm", "start"]
